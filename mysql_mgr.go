@@ -43,9 +43,9 @@ type Cfg struct {
 	Debug bool `toml:"debug"` // 是否显示sql语句
 
 	// pool
-	PoolMaxOpenConn     int           `toml:"pool_max_open_conn"`     // 最大连接数大小
-	PoolMaxIdleConn     int           `toml:"pool_max_idle_conn"`     // 最大空闲的连接的个数
-	PoolConnMaxLifetime time.Duration `toml:"pool_conn_max_lifetime"` // 连接的生命时间,超过此时间，连接将关闭后重新建立新的，0代表忽略相关判断,单位:second
+	PoolMaxOpenConn     int           `toml:"max_open_conn"`     // 最大连接数大小
+	PoolMaxIdleConn     int           `toml:"max_idle_conn"`     // 最大空闲的连接的个数
+	PoolConnMaxLifetime time.Duration `toml:"conn_max_lifetime"` // 连接的生命时间,超过此时间，连接将关闭后重新建立新的，0代表忽略相关判断,单位:second
 }
 
 // 验证mysql实例的配置正确性与连通性。
