@@ -149,7 +149,7 @@ func loadCfgs() (r map[string]*Cfg, err error) {
 		}))
 	})
 
-	config.Get(cfg)
+	cfg = config.Get(cfg).(*mysqlConfig)
 	if err == nil && (cfg == nil || cfg.Cfgs == nil || len(cfg.Cfgs) == 0) {
 		err = fmt.Errorf("not configed")
 	}
