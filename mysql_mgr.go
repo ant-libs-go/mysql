@@ -140,16 +140,15 @@ func loadCfg(name string) (r *Cfg, err error) {
 func loadCfgs() (r map[string]*Cfg, err error) {
 	r = map[string]*Cfg{}
 
-	cfg := &mysqlConfig{}
 	once.Do(func() {
-		_, err = config.Load(cfg, options.WithOnChangeFn(func(cfg interface{}) {
+		config.Get(&mysqlConfig{}, options.WithOpOnChangeFn(func(cfg interface{}) {
 			lock.Lock()
 			defer lock.Unlock()
 			pools = map[string]*xorm.EngineGroup{}
 		}))
 	})
 
-	cfg = config.Get(cfg).(*mysqlConfig)
+	cfg := config.Get(&mysqlConfig{}).(*mysqlConfig)
 	if err == nil && (cfg == nil || cfg.Cfgs == nil || len(cfg.Cfgs) == 0) {
 		err = fmt.Errorf("not configed")
 	}
