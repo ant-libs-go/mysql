@@ -12,27 +12,35 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"xorm.io/xorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-func NewMysqlPool(cfg *Cfg) *xorm.EngineGroup {
-	engine, err := xorm.NewEngine("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&autocommit=true",
-		cfg.DialUser, cfg.DialPawd, cfg.DialHost, cfg.DialPort, cfg.DialName))
+func NewMysqlPool(cfg *Cfg) *gorm.DB {
+	gcfg := &gorm.Config{}
+	if cfg.Debug == true {
+		gcfg.Logger = logger.Default.LogMode(logger.Info)
+	}
+	orm, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=UTC",
+		cfg.DialUser, cfg.DialPawd, cfg.DialHost, cfg.DialPort, cfg.DialName)), gcfg)
 	if err != nil {
 		panic(fmt.Sprintf("mysql connect errr: %s", err))
 	}
-	orm, err := xorm.NewEngineGroup(engine, []*xorm.Engine{})
-	orm.ShowSQL(cfg.Debug)
-	orm.TZLocation, _ = time.LoadLocation("Asia/Shanghai")
+
+	db, err := orm.DB()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to get DB instance: %s", err))
+	}
 
 	if cfg.PoolMaxOpenConn > 0 {
-		orm.SetMaxOpenConns(cfg.PoolMaxOpenConn)
+		db.SetMaxOpenConns(cfg.PoolMaxOpenConn)
 	}
 	if cfg.PoolMaxIdleConn > 0 {
-		orm.SetMaxIdleConns(cfg.PoolMaxIdleConn)
+		db.SetMaxIdleConns(cfg.PoolMaxIdleConn)
 	}
 	if cfg.PoolConnMaxLifetime > 0 {
-		orm.SetConnMaxLifetime(cfg.PoolConnMaxLifetime * time.Millisecond)
+		db.SetConnMaxLifetime(cfg.PoolConnMaxLifetime * time.Millisecond)
 	}
 	return orm
 }

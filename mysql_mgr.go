@@ -15,17 +15,17 @@ import (
 	"github.com/ant-libs-go/config"
 	"github.com/ant-libs-go/config/options"
 	_ "github.com/go-sql-driver/mysql"
-	"xorm.io/xorm"
+	"gorm.io/gorm"
 )
 
 var (
 	once  sync.Once
 	lock  sync.RWMutex
-	pools map[string]*xorm.EngineGroup
+	pools map[string]*gorm.DB
 )
 
 func init() {
-	pools = map[string]*xorm.EngineGroup{}
+	pools = map[string]*gorm.DB{}
 }
 
 type mysqlConfig struct {
@@ -61,7 +61,7 @@ func Valid(names ...string) (err error) {
 		}
 	}
 	for _, name := range names {
-		var cli *xorm.EngineGroup
+		var cli *gorm.DB
 		cli, err = SafeClient(name)
 		if err == nil {
 			err = cli.Ping()
@@ -74,23 +74,19 @@ func Valid(names ...string) (err error) {
 	return
 }
 
-func DefaultClient() (r *xorm.EngineGroup) {
+func DefaultClient() (r *gorm.DB) {
 	return Client("default")
 }
 
-func DefaultPool() (r *xorm.EngineGroup) {
-	return Pool("default")
-}
-
-func Client(name string) (r *xorm.EngineGroup) {
+func Client(name string) (r *gorm.DB) {
 	return Pool(name)
 }
 
-func SafeClient(name string) (r *xorm.EngineGroup, err error) {
+func SafeClient(name string) (r *gorm.DB, err error) {
 	return SafePool(name)
 }
 
-func Pool(name string) (r *xorm.EngineGroup) {
+func Pool(name string) (r *gorm.DB) {
 	var err error
 	if r, err = getPool(name); err != nil {
 		panic(err)
@@ -98,11 +94,11 @@ func Pool(name string) (r *xorm.EngineGroup) {
 	return
 }
 
-func SafePool(name string) (r *xorm.EngineGroup, err error) {
+func SafePool(name string) (r *gorm.DB, err error) {
 	return getPool(name)
 }
 
-func getPool(name string) (r *xorm.EngineGroup, err error) {
+func getPool(name string) (r *gorm.DB, err error) {
 	lock.RLock()
 	r = pools[name]
 	lock.RUnlock()
@@ -112,7 +108,7 @@ func getPool(name string) (r *xorm.EngineGroup, err error) {
 	return
 }
 
-func addPool(name string) (r *xorm.EngineGroup, err error) {
+func addPool(name string) (r *gorm.DB, err error) {
 	var cfg *Cfg
 	if cfg, err = loadCfg(name); err != nil {
 		return
@@ -144,7 +140,7 @@ func loadCfgs() (r map[string]*Cfg, err error) {
 		config.Get(&mysqlConfig{}, options.WithOpOnChangeFn(func(cfg interface{}) {
 			lock.Lock()
 			defer lock.Unlock()
-			pools = map[string]*xorm.EngineGroup{}
+			pools = map[string]*gorm.DB{}
 		}))
 	})
 

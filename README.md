@@ -14,7 +14,7 @@
 
 ## 安装
 
-	go get github.com/ant-libs-go/http
+	go get github.com/ant-libs-go/mysql
 
 # 快速开始
 
