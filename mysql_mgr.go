@@ -8,6 +8,7 @@
 package mysql
 
 import (
+	"database/sql"
 	"fmt"
 	"sync"
 	"time"
@@ -61,8 +62,8 @@ func Valid(names ...string) (err error) {
 		}
 	}
 	for _, name := range names {
-		var cli *gorm.DB
-		cli, err = SafeClient(name)
+		var cli *sql.DB
+		cli, err = Client(name).DB()
 		if err == nil {
 			err = cli.Ping()
 		}
