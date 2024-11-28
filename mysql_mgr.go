@@ -35,6 +35,7 @@ type mysqlConfig struct {
 
 type Cfg struct {
 	// dial
+	Engine   string `toml:"engine"` // postgressql/mysql
 	DialUser string `toml:"user"`
 	DialPawd string `toml:"pawd"`
 	DialHost string `toml:"host"`
